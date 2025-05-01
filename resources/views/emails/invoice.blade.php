@@ -9,7 +9,7 @@ Berikut adalah invoice untuk pesanan Anda:
 | Produk                  | Jumlah | Harga               |
 |:------------------------|:--------:|:--------------------|
 @foreach ($order->orderItems as $item)
-| {{ $item->product->name }} | {{ $item->quantity }} | Rp{{ number_format($item->price, 0, ',', '.') }} |
+| {{ $item->product->title }} | {{ $item->quantity }} | Rp{{ number_format($item->price, 0, ',', '.') }} |
 @endforeach
 @endcomponent
 

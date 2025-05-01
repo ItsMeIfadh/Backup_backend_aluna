@@ -72,7 +72,7 @@ Route::middleware('jwt.verify')->group(function () {
     });
 
     // Products (Admin & Kelas)
-    Route::middleware('role:admin,kelas')->group(function () {
+    Route::middleware('role:admin,seller')->group(function () {
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);
@@ -86,7 +86,7 @@ Route::middleware('jwt.verify')->group(function () {
     });
 
     // Product Price Request (Kelas Only)
-    Route::middleware('role:kelas')->post('/products/{id}/request-price', [ProductController::class, 'requestPrice']);
+    Route::middleware('role:seller')->post('/products/{id}/request-price', [ProductController::class, 'requestPrice']);
 
     // Cart (Pengguna)
     Route::prefix('cart')->group(function () {
@@ -111,7 +111,7 @@ Route::middleware('jwt.verify')->group(function () {
 
     // Orders
     Route::prefix('orders')->group(function () {
-        Route::middleware('role:admin,kelas,pengguna')->group(function () {
+        Route::middleware('role:admin,seller,pengguna')->group(function () {
             Route::get('/', [OrderController::class, 'index']);
             Route::get('/{order}', [OrderController::class, 'show']);
         });

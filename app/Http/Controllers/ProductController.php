@@ -112,11 +112,11 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
-    
+
         if (!in_array($user->role, ['admin', 'kelas'])) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-    
+
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -124,42 +124,42 @@ class ProductController extends Controller
             'video_url' => 'nullable|url',
             'image' => 'required|image|mimes:jpg,png,jpeg|max:2048',
             'category_id' => 'required|exists:categories,id',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|in:published,unpublished', // di store
         ];
-    
+
         if ($user->role === 'admin') {
             $rules['price'] = 'nullable|numeric|min:0';
         }
-    
+
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+
         $data = $request->except(['image', 'price']);
         $data['user_id'] = $user->id;
         $data['price'] = ($user->role === 'admin') ? $request->input('price', 0) : 0;
-    
+
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
             $data['images_path'] = $path;
             $data['images_url'] = url('storage/' . $path);  // Mengubah ke URL lengkap
         }
-    
+
         $product = Product::create($data);
-    
+
         return new ProductResource($product);
     }
-    
+
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
         $user = auth()->user();
-    
+
         if ($user->role === 'kelas' && $product->user_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-    
+
         $rules = [
             'title' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
@@ -167,46 +167,59 @@ class ProductController extends Controller
             'video_url' => 'sometimes|url',
             'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
             'category_id' => 'sometimes|exists:categories,id',
-            'status' => 'sometimes|in:active,inactive',
+            'status' => 'sometimes|in:published,unpublished', // di update
         ];
-    
+
         if ($user->role === 'admin') {
             $rules['price'] = 'nullable|numeric|min:0';
         }
-    
+
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-    
+
         $data = $request->except(['image', 'price']);
-    
+
         if ($user->role === 'admin' && $request->has('price')) {
             $data['price'] = $request->input('price');
         }
-    
+
         if ($request->hasFile('image')) {
             if ($product->images_path) {
                 Storage::disk('public')->delete($product->images_path);
             }
-    
+
             $path = $request->file('image')->store('products', 'public');
             $data['images_path'] = $path;
             $data['images_url'] = url('storage/' . $path);  // Mengubah ke URL lengkap
         }
-    
+
         $product->update($data);
-    
+
         Log::info('Product updated', [
             'id' => $product->id,
             'title' => $product->title,
             'price' => $product->price,
             'updated_by' => $user->id,
         ]);
-    
+
         return new ProductResource($product);
     }
-    
+
+    public function destroy($id)
+{
+    // Cari produk berdasarkan ID
+    $product = Product::findOrFail($id);
+
+    // Hapus produk
+    $product->delete();
+
+    // Kembalikan response sukses
+    return response()->json(['message' => 'Produk berhasil dihapus.']);
+}
+
+
     public function requestPrice(Request $request, $id)
     {
         $product = Product::findOrFail($id);
@@ -263,8 +276,8 @@ class ProductController extends Controller
 
         $product = Product::findOrFail($id);
         $discount = Discount::where('code', $request->code)
-                            ->whereDate('expires_at', '>=', now())
-                            ->first();
+            ->whereDate('expires_at', '>=', now())
+            ->first();
 
         if (!$discount) {
             return response()->json(['message' => 'Diskon tidak valid atau sudah kedaluwarsa.'], 400);

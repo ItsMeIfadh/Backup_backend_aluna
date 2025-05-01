@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->string('phone_number')->nullable()->unique(); // Tambah kolom no telepon
             $table->string('profile_photo')->nullable();
-            $table->enum('role', ['admin', 'kelas', 'pengguna'])->default('pengguna');
+            $table->enum('role', ['admin', 'seller', 'pengguna'])->default('pengguna');
             $table->boolean('is_active')->default(0);
             $table->string('otp_code')->nullable();
             $table->timestamp('otp_expires_at')->nullable();
