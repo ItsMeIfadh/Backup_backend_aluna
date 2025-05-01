@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -44,7 +45,8 @@ class CartController extends Controller
                         'average_rating' => $product->ratings->avg('rating') ? round($product->ratings->avg('rating'), 1) : null,
                         'created_at' => $product->created_at->format('d-m-Y H:i'),
                         'updated_at' => $product->updated_at->format('d-m-Y H:i'),
-                    ]
+                    ],
+                    'quantity' => $item->quantity
                 ];
             })
         ]);
@@ -52,23 +54,24 @@ class CartController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'quantity' => 'nullable|integer|min:1'
         ]);
 
+
+
         $cartItem = Cart::firstOrCreate(
-            ['user_id' => auth()->id(), 'product_id' => $request->product_id]
+            ['user_id' => $user->id, 'product_id' => $request->product_id, 'quantity' => $request->get('quantity', 1)] // default quantity to 1
         );
 
-        $cartItem->load('product');
-
-        $products = $cartItem->product;
+        $cartItem->load(['user', 'product']);
 
         return response()->json([
             'message' => 'Product added to cart',
-            'cart' => [
-                'products' => $products
-            ]
+            'cart' => $cartItem
     ]);
     }
 

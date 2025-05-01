@@ -12,7 +12,7 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $categories = Category::all();
-        $users = User::where('role', 'kelas')->get(); // Ambil user dengan role "kelas"
+        $users = User::where('email', 'kelas@gmail.com')->first(); // Ambil user dengan role "kelas"
 
         $products = [
             [
@@ -20,13 +20,15 @@ class ProductSeeder extends Seeder
                 'description' => 'Website berita teknologi terkemuka yang membahas startup, gadget, dan dunia digital.',
                 'url' => 'https://techcrunch.com',
                 'video_url' => 'https://www.youtube.com/watch?v=techcrunch-video',
-                'price' => 0,
+                'status' => 'published',
+                'price' => 40000,
             ],
             [
                 'title' => 'Netflix',
                 'description' => 'Layanan streaming film dan serial terpopuler di dunia.',
                 'url' => 'https://www.netflix.com',
                 'video_url' => 'https://www.youtube.com/watch?v=netflix-trailer',
+                'status' => 'published',
                 'price' => 149000,
             ],
             [
@@ -34,13 +36,15 @@ class ProductSeeder extends Seeder
                 'description' => 'Marketplace online dengan berbagai produk dari kebutuhan harian hingga elektronik.',
                 'url' => 'https://shopee.co.id',
                 'video_url' => 'https://www.youtube.com/watch?v=shopee-commercial',
-                'price' => 0,
+                'status' => 'published',
+                'price' => 20000,
             ],
             [
                 'title' => 'Canva',
                 'description' => 'Platform desain grafis online yang mudah digunakan untuk membuat berbagai jenis desain.',
                 'url' => 'https://www.canva.com',
                 'video_url' => 'https://www.youtube.com/watch?v=canva-guide',
+                'status' => 'published',
                 'price' => 95000,
             ],
             [
@@ -48,7 +52,8 @@ class ProductSeeder extends Seeder
                 'description' => 'Jejaring sosial profesional untuk mencari kerja, koneksi bisnis, dan berbagi informasi.',
                 'url' => 'https://www.linkedin.com',
                 'video_url' => 'https://www.youtube.com/watch?v=linkedin-tips',
-                'price' => 0,
+                'status' => 'published',
+                'price' => 60000,
             ],
         ];
 
@@ -60,9 +65,9 @@ class ProductSeeder extends Seeder
                     'url' => $product['url'],
                     'video_url' => $product['video_url'],
                     'category_id' => $category->id,
-                    'user_id' => $users->random()->id,
+                    'user_id' => $users->id,
                     'price' => $product['price'],
-                    'status' => 'active',
+                    'status' => $product['status'],
                 ]);
             }
         }
