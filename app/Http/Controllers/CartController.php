@@ -60,7 +60,16 @@ class CartController extends Controller
             ['user_id' => auth()->id(), 'product_id' => $request->product_id]
         );
 
-        return response()->json(['message' => 'Product added to cart', 'cart_id' => $cartItem->id]);
+        $cartItem->load('product');
+
+        $products = $cartItem->product;
+
+        return response()->json([
+            'message' => 'Product added to cart',
+            'cart' => [
+                'products' => $products
+            ]
+    ]);
     }
 
     public function destroy($id)
