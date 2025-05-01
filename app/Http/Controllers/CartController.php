@@ -43,8 +43,8 @@ class CartController extends Controller
                             ? $product->price - ($product->price * ($product->discounts->first()->percentage / 100))
                             : $product->price,
                         'average_rating' => $product->ratings->avg('rating') ? round($product->ratings->avg('rating'), 1) : null,
-                        'images_path' => $product->image_path,
-                        'images_url' => $product->image_url,
+                        'images_path' => $product->images_path,
+                        'images_url' => $product->images_url,
                         'created_at' => $product->created_at->format('d-m-Y H:i'),
                         'updated_at' => $product->updated_at->format('d-m-Y H:i'),
                     ],
